@@ -20,13 +20,13 @@ Node.js 会捆绑与发布一个版本的 `node-gyp` 工具作为 `npm` 的一�
 需要直接使用 `node-gyp` 的开发者可以使用 `npm install -g node-gyp` 命令进行安装。
 查看 `node-gyp` [安装说明][installation instructions]了解更多信息，包括平台特定的要求。
 
-但 `binding.gyp` 文件已被创建，使用 `node-gyp configure` 为当前平台生成相应的项目构建文件。
+`binding.gyp` 文件创建后，使用 `node-gyp configure` 为当前平台生成相应的项目构建文件。
 这会在 `build/` 目录下生成一个 `Makefile` 文件（在 Unix 平台上）或 `vcxproj` 文件（在 Windows 上）。
 
 下一步，调用 `node-gyp build` 命令生成编译后的 `addon.node` 的文件。
 它会被放进 `build/Release/` 目录。
 
-当使用 `npm install` 安装一个 Node.js 插件时，npm 会使用自身捆绑的 `node-gyp` 版本来执行同样的一套动作，为用户要求的平台生成一个插件编译后的版本。
+当使用 `npm install` 安装 Node.js 插件时，npm 会使用自身捆绑的 `node-gyp` 版本来执行相同的动作，为用户平台生成一个编译后的插件版本。
 
 当构建完成时，二进制插件就可以在 Node.js 中被使用，通过 [`require()`][require] 构建后的 `addon.node` 模块：
 
