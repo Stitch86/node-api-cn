@@ -19,7 +19,7 @@ NODE_MODULE_INITIALIZER(Local<Object> exports,
 ```
 
 另一个选择是使用 `NODE_MODULE_INIT()` 宏，这也可以用来构建上下文感知的插件。
-但和 `NODE_MODULE()` 不一样的是，它可以基于一个给定的函数来构建一个插件，`NODE_MODULE_INIT()` 充当了这种跟有函数体的给定函数的声明。
+但和 `NODE_MODULE()` 不一样的是，它可以基于一个给定的函数来构建一个插件，`NODE_MODULE_INIT()` 充当了指定初始化函数体的函数声明。
 
 可以在调用 `NODE_MODULE_INIT()` 之后在函数体内部使用以下三个变量：
 * `Local<Object> exports`
@@ -27,15 +27,15 @@ NODE_MODULE_INITIALIZER(Local<Object> exports,
 * `Local<Context> context`
 
 这种构建上下文感知的插件的方式顺带了管理全局静态数据的职责。
-由于插件可能被多次加载，可能甚至来自不同的线程，插件中任何的全局静态数据必须加以保护，并且不能包含任何对 JavaScript 对象持久性的引用。
+由于插件可能被多次加载，甚至会由不同线程加载，插件中任何全局静态数据必须被加以保护，并且不能包含对JavaScript 对象的任何持久性引用。
 因为 JavaScript 对象只在一个上下文中有效，从错误的上下文或者另外的线程中访问有可能会导致崩溃。
 
 可以通过执行以下步骤来构造上下文感知的插件以避免全局静态数据：
 
 * 定义一个持有每个插件实例数据的类。这样的类应该包含一个 `v8::Persistent<v8::Object>` 持有 `exports` 对象的弱引用。与该弱引用关联的回调函数将会破坏该类的实例。
 * 在插件实例化过程中构造这个类的实例，把`v8::Persistent<v8::Object>` 挂到 `exports` 对象上去。
-* 在 `v8::External` 中保存这个类的实例。
-* 通过将 `v8::External` 传给 `v8::FunctionTemplate` 构造函数，该函数会创建本地支持的 JavaScript 函数，把 `v8::External` 传递给所有暴露给 JavaScript 的方法。
+* 在 `v8::External` 中保存这个类的实例，然后
+* 将 `v8::External` 传给 `v8::FunctionTemplate` 构造函数，该函数会创建本地支持的 JavaScript 函数，把 `v8::External` 传递给所有暴露给 JavaScript 的方法。
   `v8::FunctionTemplate` 构造函数的第三个参数接受 `v8::External`。
 
 这确保了每个扩展实例数据到达每个能被 JavaScript 访问的绑定。每个扩展实例数据也必须通过其创建的任何异步回调函数。
